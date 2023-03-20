@@ -14,6 +14,8 @@ contract DCAManager{
         uint frequency;
         uint dcaAmount;
         uint timecreated;
+        uint totalDcaed;
+        uint lastDcaTimestamp;
     }
     
     struct SwapDescription {
@@ -37,7 +39,6 @@ contract DCAManager{
     }
 
     function  createDCA(
-        address dcaOwner,
         address assetIn,
         uint amountIn,
         address assetOut,
@@ -49,17 +50,27 @@ contract DCAManager{
     {
 
         DCAItem memory newDcaItem = DCAItem(
-            dcaOwner,
+            msg.sender,
             assetIn,
             amountIn,
             assetOut,
             frequency,
             dcaAmount,
-        block.timestamp);
+            block.timestamp,
+            0,
+            0
+        );
 
         dcaItems.push(newDcaItem);
         numDcaItems++;
         return numDcaItems;
+    }
+
+    function getDCAItem(uint itemID)
+    public
+    view
+    returns (DCAItem memory dcaItem){
+        return dcaItems[itemID];
     }
 
     function getDCASwapInfo(uint itemID) 
@@ -75,8 +86,45 @@ contract DCAManager{
     {
 
         DCAItem memory dcaItem = dcaItems[itemID];
+        
+
         return (dcaItem.dcaOwner, dcaItem.assetIn, dcaItem.assetOut, dcaItem.dcaAmount, dcaItem.frequency);
     }
+
+    function performDCA(uint itemID, uint minOut, bytes calldata _data) 
+    public 
+    returns (uint totalDcaed){
+
+        DCAItem memory dcaItem = dcaItems[itemID];
+
+        require(dcaItem.totalDcaed < dcaItem.amountIn, "There is nore more to DCA");
+        require(dcaItem.frequency+dcaItem.lastDcaTimestamp < block.timestamp, "That's too fast for the DCA frequency");
+
+        this.swap(minOut, _data);
+
+        dcaItem.totalDcaed = dcaItem.totalDcaed + dcaItem.dcaAmount;
+        dcaItem.lastDcaTimestamp = block.timestamp;
+        dcaItems[itemID] = dcaItem;
+
+        return dcaItem.totalDcaed + dcaItem.dcaAmount;
+    }
+
+    function performDCAFake(uint itemID) public returns(uint totalDcaed){
+        DCAItem memory dcaItem = dcaItems[itemID];
+
+        require(dcaItem.totalDcaed < dcaItem.amountIn, "There is nore more to DCA");
+        require(dcaItem.frequency+dcaItem.lastDcaTimestamp < block.timestamp, "That's too fast for the DCA frequency");
+
+
+        dcaItem.totalDcaed = dcaItem.totalDcaed + dcaItem.dcaAmount;
+        dcaItem.lastDcaTimestamp = block.timestamp;
+        dcaItems[itemID] = dcaItem;
+
+        return dcaItem.totalDcaed + dcaItem.dcaAmount;
+
+    }
+
+
 
     
 
