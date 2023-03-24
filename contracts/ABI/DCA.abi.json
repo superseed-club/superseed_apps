@@ -1,0 +1,223 @@
+[
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "router",
+				"type": "address"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "assetIn",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amountIn",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "assetOut",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "frequency",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "dcaAmount",
+				"type": "uint256"
+			}
+		],
+		"name": "createDCA",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "itemID",
+				"type": "uint256"
+			}
+		],
+		"name": "getDCAItem",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "address",
+						"name": "dcaOwner",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "assetIn",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "amountIn",
+						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "assetOut",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "frequency",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "dcaAmount",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "timecreated",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "totalDcaed",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "lastDcaTimestamp",
+						"type": "uint256"
+					}
+				],
+				"internalType": "struct DCAManager.DCAItem",
+				"name": "dcaItem",
+				"type": "tuple"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "itemID",
+				"type": "uint256"
+			}
+		],
+		"name": "getDCASwapInfo",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "fromAddress",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "toAddress",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "frequency",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "itemID",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "minOut",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bytes",
+				"name": "_data",
+				"type": "bytes"
+			}
+		],
+		"name": "performDCA",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "totalDcaed",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "itemID",
+				"type": "uint256"
+			}
+		],
+		"name": "performDCAFake",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "totalDcaed",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "minOut",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bytes",
+				"name": "_data",
+				"type": "bytes"
+			}
+		],
+		"name": "swap",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	}
+]
