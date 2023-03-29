@@ -50,14 +50,17 @@ async function performDCA(itemID, minOut, swapData){
     gasPrice = await web3.eth.getGasPrice()
     console.log(`gas prie ${gasPrice}`)
 
-    const result = await dcaContract.methods
-      .performDCA(itemID, minOut, swapData)
-      .send({ 
-        from: defaultAccount,
-        gas: 500000,
-        gasPrice: gasPrice
-       })
-    console.log(result)
+    console.log(minOut)
+    console.log(swapData)
+
+    // const result = await dcaContract.methods
+    //   .performDCA(itemID, minOut, swapData)
+    //   .send({ 
+    //     from: defaultAccount,
+    //     gas: 500000,
+    //     gasPrice: gasPrice
+    //    })
+    // console.log(result)
     return result
 }
 
@@ -100,8 +103,8 @@ async function createDCAItem(
 }
 
 async function main(){
-    token1 = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
-    token2 = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"
+    token1 = "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270" //wmatic
+    token2 = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174" //usdc
     amount = "100000000000000000"
 
     // swapData = await getExpectedReturn(token1, token2, amount, onBehalfOf);
@@ -123,7 +126,7 @@ async function main(){
     console.log(swapData)
 
     console.log(0, swapData.toTokenAmount, swapData.tx.data);
-    // result = await performDCA(0, swapData.toTokenAmount, swapData.tx.data);
+    result = await performDCA(0, swapData.toTokenAmount, swapData.tx.data);
     // console.log(result)
 }
 
