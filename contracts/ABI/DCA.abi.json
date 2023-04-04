@@ -16,6 +16,32 @@
 		"type": "constructor"
 	},
 	{
+		"inputs": [],
+		"name": "AGGREGATION_ROUTER_V4",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "AGGREGATION_ROUTER_V5",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
 		"inputs": [
 			{
 				"internalType": "address",
@@ -306,6 +332,37 @@
 				"internalType": "uint256",
 				"name": "frequency",
 				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "lastDcaTimestamp",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getTotalDCAItems",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "totalDCAItems",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "numDcaItems",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
 			}
 		],
 		"stateMutability": "view",
@@ -346,6 +403,11 @@
 				"internalType": "uint256",
 				"name": "itemID",
 				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "sender",
+				"type": "address"
 			}
 		],
 		"name": "performDCAFake",
@@ -370,6 +432,11 @@
 				"internalType": "bytes",
 				"name": "_data",
 				"type": "bytes"
+			},
+			{
+				"internalType": "address",
+				"name": "_sender",
+				"type": "address"
 			}
 		],
 		"name": "swapV4",
@@ -388,6 +455,11 @@
 				"internalType": "bytes",
 				"name": "_data",
 				"type": "bytes"
+			},
+			{
+				"internalType": "address",
+				"name": "_sender",
+				"type": "address"
 			}
 		],
 		"name": "swapV5",
@@ -406,6 +478,11 @@
 				"internalType": "bytes",
 				"name": "_data",
 				"type": "bytes"
+			},
+			{
+				"internalType": "address",
+				"name": "_sender",
+				"type": "address"
 			}
 		],
 		"name": "swapV5ETH",

@@ -39,12 +39,12 @@ contract DCAManager{
         uint256 flags;
     }
 
-    address immutable AGGREGATION_ROUTER_V5;
-    address immutable AGGREGATION_ROUTER_V4;
+    address immutable public AGGREGATION_ROUTER_V5;
+    address immutable public AGGREGATION_ROUTER_V4;
 
 
     DCAItem [] dcaItems;
-    uint numDcaItems = 0;
+    uint public numDcaItems = 0;
 
       constructor(address routerV5, address routerV4) {
         AGGREGATION_ROUTER_V5 = routerV5; //0x1111111254EEB25477B68fb85Ed929f73A960582
@@ -87,6 +87,13 @@ contract DCAManager{
         return dcaItems[itemID];
     }
 
+    function getTotalDCAItems()
+    public
+    view
+    returns (uint totalDCAItems){
+        return numDcaItems;
+    }
+
     function getDCASwapInfo(uint itemID) 
     public 
     view 
@@ -95,14 +102,15 @@ contract DCAManager{
         address fromAddress, 
         address toAddress, 
         uint amount,
-        uint frequency
+        uint frequency,
+        uint lastDcaTimestamp
         )
     {
 
         DCAItem memory dcaItem = dcaItems[itemID];
         
 
-        return (dcaItem.dcaOwner, dcaItem.assetIn, dcaItem.assetOut, dcaItem.dcaAmount, dcaItem.frequency);
+        return (dcaItem.dcaOwner, dcaItem.assetIn, dcaItem.assetOut, dcaItem.dcaAmount, dcaItem.frequency, lastDcaTimestamp);
     }
 
     function performDCA(uint itemID, uint minOut, bytes calldata _data) 
@@ -114,7 +122,7 @@ contract DCAManager{
         require(dcaItem.totalDcaed < dcaItem.amountIn, "There is nore more to DCA");
         require(dcaItem.frequency+dcaItem.lastDcaTimestamp < block.timestamp, "That's too fast for the DCA frequency");
 
-        this.swapV5(minOut, _data);
+        this.swapV5(minOut, _data, dcaItem.dcaOwner); //send the owner of the dca item
 
         dcaItem.totalDcaed = dcaItem.totalDcaed + dcaItem.dcaAmount;
         dcaItem.lastDcaTimestamp = block.timestamp;
@@ -123,7 +131,9 @@ contract DCAManager{
         return dcaItem.totalDcaed + dcaItem.dcaAmount;
     }
 
-    function performDCAFake(uint itemID) public returns(uint totalDcaed){
+    
+
+    function performDCAFake(uint itemID, address sender) public returns(uint totalDcaed){
         DCAItem memory dcaItem = dcaItems[itemID];
 
         require(dcaItem.totalDcaed < dcaItem.amountIn, "There is nore more to DCA");
@@ -142,12 +152,12 @@ contract DCAManager{
 
     
 
-    function swapV4(uint minOut, bytes calldata _data) external {
+    function swapV4(uint minOut, bytes calldata _data, address _sender) external {
         //get the function selection, the SwapDescription and other data so that we can get the source token
         (address _c, SwapDescriptionV4 memory desc, bytes memory _d) = abi.decode(_data[4:], (address, SwapDescriptionV4, bytes)); 
         
         //once we have the source token, we can transfer if from the account that called the swap method and send it to this smart contract
-        IERC20(desc.srcToken).transferFrom(msg.sender, address(this), desc.amount);
+        IERC20(desc.srcToken).transferFrom(_sender, address(this), desc.amount);
 
         //this smart contract then approves that the aggregation router (1inch) smart contract can perform the swap on the assets
         IERC20(desc.srcToken).approve(AGGREGATION_ROUTER_V4, desc.amount);
@@ -161,10 +171,12 @@ contract DCAManager{
         }
     }
 
-    function swapV5(uint minOut, bytes calldata _data) external {
+    
+
+    function swapV5(uint minOut, bytes calldata _data, address _sender) external {
         (address _c, SwapDescriptionV5 memory desc, bytes memory permit, bytes memory _d) = abi.decode(_data[4:], (address, SwapDescriptionV5, bytes, bytes));
 
-        IERC20(desc.srcToken).transferFrom(tx.origin, address(this), desc.amount);
+        IERC20(desc.srcToken).transferFrom(_sender, address(this), desc.amount);
         IERC20(desc.srcToken).approve(AGGREGATION_ROUTER_V5, desc.amount);
 
         (bool succ, bytes memory _data) = address(AGGREGATION_ROUTER_V5).call(_data);
@@ -176,11 +188,12 @@ contract DCAManager{
         }
     }
 
+
     /* the implementation on Ethereum returns spentAmount when the swap completes*/
-    function swapV5ETH(uint minOut, bytes calldata _data) external {
+    function swapV5ETH(uint minOut, bytes calldata _data, address _sender) external {
         (address _c, SwapDescriptionV5 memory desc, bytes memory permit, bytes memory _d) = abi.decode(_data[4:], (address, SwapDescriptionV5, bytes, bytes));
 
-        IERC20(desc.srcToken).transferFrom(msg.sender, address(this), desc.amount);
+        IERC20(desc.srcToken).transferFrom(_sender, address(this), desc.amount);
         IERC20(desc.srcToken).approve(AGGREGATION_ROUTER_V5, desc.amount);
 
         (bool succ, bytes memory _data) = address(AGGREGATION_ROUTER_V5).call(_data);
