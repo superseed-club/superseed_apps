@@ -185,8 +185,18 @@ contract DCAManager{
         require(itemID<numDcaItems, "that item does not exist yet");
         DCAItem memory dcaItem = dcaItems[itemID];
         require(dcaItem.status!=Status.COMPLETED, "The DCA Item is completed.");
+
+        uint amountRemainingToDCA = dcaItem.amountIn-dcaItem.totalDcaed;
+        uint tokenBalance = ERC20(dcaItem.assetIn).balanceOf(dcaItem.dcaOwner);
+        if(tokenBalance<amountRemainingToDCA){
+            dcaItem.status = Status.NOT_ENOUGH_BALANCE;
+            dcaItems[itemID] = dcaItem;
+        }
+        require(tokenBalance>=amountRemainingToDCA, "Not enough balance to DCA");
+
         require(dcaItem.status==Status.IN_PROGRESS, "The DCA Item is not in progress it was either paused or there is not enough balance");
-        require(dcaItem.totalDcaed < dcaItem.amountIn, "There is nore more to DCA");
+        
+        require(dcaItem.totalDcaed < dcaItem.amountIn, "There is no more to DCA");
         require(dcaItem.frequency+dcaItem.lastDcaTimestamp < block.timestamp, "That's too fast for the DCA frequency");
         this.swapV5(minOut, _data, dcaItem.dcaOwner); //send the owner of the dca item
 
@@ -208,8 +218,18 @@ contract DCAManager{
         DCAItem memory dcaItem = dcaItems[itemID];
 
         require(dcaItem.status!=Status.COMPLETED, "The DCA Item is completed.");
+
+        uint amountRemainingToDCA = dcaItem.amountIn-dcaItem.totalDcaed;
+        uint tokenBalance = ERC20(dcaItem.assetIn).balanceOf(dcaItem.dcaOwner);
+        if(tokenBalance<amountRemainingToDCA){
+            dcaItem.status = Status.NOT_ENOUGH_BALANCE;
+            dcaItems[itemID] = dcaItem;
+        }
+        require(tokenBalance>=amountRemainingToDCA, "Not enough balance to DCA");
+
         require(dcaItem.status==Status.IN_PROGRESS, "The DCA Item is not in progress it was either paused or there is not enough balance");
-        require(dcaItem.totalDcaed < dcaItem.amountIn, "There is nore more to DCA");
+        
+        require(dcaItem.totalDcaed < dcaItem.amountIn, "There is no more to DCA");
         require(dcaItem.frequency+dcaItem.lastDcaTimestamp < block.timestamp, "That's too fast for the DCA frequency");
 
 
