@@ -5,7 +5,14 @@ pragma solidity ^0.8.14;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
+/*
+TODO
+- check item balance and there is no more balance for the dca change the status
+
+*/
 contract DCAManager{
+    enum Status{ IN_PROGRESS, PAUSED, NOT_ENOUGH_BALANCE, COMPLETED }
+
     struct DCAItem{
         address dcaOwner;
         address assetIn;
@@ -16,6 +23,8 @@ contract DCAManager{
         uint timecreated;
         uint totalDcaed;
         uint lastDcaTimestamp;
+        uint itemID;
+        Status status;
     }
     
     struct SwapDescriptionV4 {
@@ -72,7 +81,9 @@ contract DCAManager{
             dcaAmount,
             block.timestamp,
             0,
-            0
+            0,
+            numDcaItems,
+            Status.IN_PROGRESS
         );
 
         dcaItems.push(newDcaItem);
@@ -84,6 +95,7 @@ contract DCAManager{
     public
     view
     returns (DCAItem memory dcaItem){
+        require(itemID<numDcaItems, "that item does not exist yet");
         return dcaItems[itemID];
     }
 
@@ -106,49 +118,152 @@ contract DCAManager{
         uint lastDcaTimestamp
         )
     {
-
+        require(itemID<numDcaItems, "that item does not exist yet");
         DCAItem memory dcaItem = dcaItems[itemID];
         
 
         return (dcaItem.dcaOwner, dcaItem.assetIn, dcaItem.assetOut, dcaItem.dcaAmount, dcaItem.frequency, lastDcaTimestamp);
     }
 
+    function getDCAItemStatus(uint itemID) 
+    public 
+    view 
+    returns (
+        Status status
+        )
+    {
+        require(itemID<numDcaItems, "that item does not exist yet");
+        DCAItem memory dcaItem = dcaItems[itemID];
+        return dcaItem.status;
+    }
+
+    function getInProgressStatusNum() 
+    public 
+    pure 
+    returns (
+        Status status
+    )
+    {
+        return Status.IN_PROGRESS;
+    }
+
+    function getPausedStatusNum() 
+    public 
+    pure 
+    returns (
+        Status status
+        )
+    {
+        return Status.PAUSED;
+    }
+
+    function getNotEnoughBalanceStatus() 
+    public 
+    pure 
+    returns (
+        Status status
+        )
+    {
+        return Status.NOT_ENOUGH_BALANCE;
+    }
+
+    function getCompletedStatusNum() 
+    public 
+    pure 
+    returns (
+        Status status
+        )
+    {
+        return Status.COMPLETED;
+    }
+
+
     function performDCA(uint itemID, uint minOut, bytes calldata _data) 
     public 
     returns (uint totalDcaed){
 
+        require(itemID<numDcaItems, "that item does not exist yet");
         DCAItem memory dcaItem = dcaItems[itemID];
-
+        require(dcaItem.status!=Status.COMPLETED, "The DCA Item is completed.");
+        require(dcaItem.status==Status.IN_PROGRESS, "The DCA Item is not in progress it was either paused or there is not enough balance");
         require(dcaItem.totalDcaed < dcaItem.amountIn, "There is nore more to DCA");
         require(dcaItem.frequency+dcaItem.lastDcaTimestamp < block.timestamp, "That's too fast for the DCA frequency");
-
         this.swapV5(minOut, _data, dcaItem.dcaOwner); //send the owner of the dca item
 
         dcaItem.totalDcaed = dcaItem.totalDcaed + dcaItem.dcaAmount;
         dcaItem.lastDcaTimestamp = block.timestamp;
+        if(dcaItem.totalDcaed == dcaItem.amountIn){
+            dcaItem.status = Status.COMPLETED;
+        }
         dcaItems[itemID] = dcaItem;
 
         return dcaItem.totalDcaed + dcaItem.dcaAmount;
     }
-
     
 
     function performDCAFake(uint itemID, address sender) public returns(uint totalDcaed){
+
+        require(itemID<numDcaItems, "that item does not exist yet");
+
         DCAItem memory dcaItem = dcaItems[itemID];
 
+        require(dcaItem.status!=Status.COMPLETED, "The DCA Item is completed.");
+        require(dcaItem.status==Status.IN_PROGRESS, "The DCA Item is not in progress it was either paused or there is not enough balance");
         require(dcaItem.totalDcaed < dcaItem.amountIn, "There is nore more to DCA");
         require(dcaItem.frequency+dcaItem.lastDcaTimestamp < block.timestamp, "That's too fast for the DCA frequency");
 
 
         dcaItem.totalDcaed = dcaItem.totalDcaed + dcaItem.dcaAmount;
         dcaItem.lastDcaTimestamp = block.timestamp;
+        if(dcaItem.totalDcaed == dcaItem.amountIn){
+            dcaItem.status = Status.COMPLETED;
+        }
         dcaItems[itemID] = dcaItem;
 
         return dcaItem.totalDcaed + dcaItem.dcaAmount;
 
     }
 
+    function pauseDCA(uint itemID)
+    public
+    returns (Status status)
+    {
+        require(itemID<numDcaItems, "that item does not exist yet");
+        DCAItem memory dcaItem = dcaItems[itemID];
+        require(dcaItem.dcaOwner==tx.origin, "you are not the owner of this DCA Item");
 
+        dcaItem.status = Status.PAUSED;
+        dcaItems[itemID] = dcaItem;
+        return dcaItems[itemID].status;
+    }
+
+    function resumeDCA(uint itemID)
+    public
+    returns (Status status)
+    {
+        require(itemID<numDcaItems, "that item does not exist yet");
+        DCAItem memory dcaItem = dcaItems[itemID];
+        require(dcaItem.dcaOwner == tx.origin, "you cannot start another wallet's DCA");
+
+        dcaItem.status = Status.IN_PROGRESS;
+        dcaItems[itemID] = dcaItem;
+        return dcaItems[itemID].status;
+    }
+
+    function dcaItemInProgress(uint itemID)
+    public
+    view
+    returns (bool IN_PROGRESS){
+        return (dcaItems[itemID].status==Status.IN_PROGRESS);
+    }
+
+
+function dcaItemInProgress2(uint itemID)
+    public
+    view
+    returns (bool IN_PROGRESS){
+        return uint(dcaItems[itemID].status)==uint(Status.IN_PROGRESS);
+    }
 
     
 
