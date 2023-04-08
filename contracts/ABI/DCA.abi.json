@@ -84,6 +84,44 @@
 		"inputs": [
 			{
 				"internalType": "uint256",
+				"name": "itemID",
+				"type": "uint256"
+			}
+		],
+		"name": "dcaItemInProgress",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "IN_PROGRESS",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "itemID",
+				"type": "uint256"
+			}
+		],
+		"name": "dcaItemInProgress2",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "IN_PROGRESS",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
 				"name": "minOut",
 				"type": "uint256"
 			},
@@ -233,6 +271,19 @@
 		"type": "function"
 	},
 	{
+		"inputs": [],
+		"name": "getCompletedStatusNum",
+		"outputs": [
+			{
+				"internalType": "enum DCAManager.Status",
+				"name": "status",
+				"type": "uint8"
+			}
+		],
+		"stateMutability": "pure",
+		"type": "function"
+	},
+	{
 		"inputs": [
 			{
 				"internalType": "uint256",
@@ -288,11 +339,40 @@
 						"internalType": "uint256",
 						"name": "lastDcaTimestamp",
 						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "itemID",
+						"type": "uint256"
+					},
+					{
+						"internalType": "enum DCAManager.Status",
+						"name": "status",
+						"type": "uint8"
 					}
 				],
 				"internalType": "struct DCAManager.DCAItem",
 				"name": "dcaItem",
 				"type": "tuple"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "itemID",
+				"type": "uint256"
+			}
+		],
+		"name": "getDCAItemStatus",
+		"outputs": [
+			{
+				"internalType": "enum DCAManager.Status",
+				"name": "status",
+				"type": "uint8"
 			}
 		],
 		"stateMutability": "view",
@@ -344,6 +424,45 @@
 	},
 	{
 		"inputs": [],
+		"name": "getInProgressStatusNum",
+		"outputs": [
+			{
+				"internalType": "enum DCAManager.Status",
+				"name": "status",
+				"type": "uint8"
+			}
+		],
+		"stateMutability": "pure",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getNotEnoughBalanceStatus",
+		"outputs": [
+			{
+				"internalType": "enum DCAManager.Status",
+				"name": "status",
+				"type": "uint8"
+			}
+		],
+		"stateMutability": "pure",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getPausedStatusNum",
+		"outputs": [
+			{
+				"internalType": "enum DCAManager.Status",
+				"name": "status",
+				"type": "uint8"
+			}
+		],
+		"stateMutability": "pure",
+		"type": "function"
+	},
+	{
+		"inputs": [],
 		"name": "getTotalDCAItems",
 		"outputs": [
 			{
@@ -366,6 +485,25 @@
 			}
 		],
 		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "itemID",
+				"type": "uint256"
+			}
+		],
+		"name": "pauseDCA",
+		"outputs": [
+			{
+				"internalType": "enum DCAManager.Status",
+				"name": "status",
+				"type": "uint8"
+			}
+		],
+		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
@@ -416,6 +554,25 @@
 				"internalType": "uint256",
 				"name": "totalDcaed",
 				"type": "uint256"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "itemID",
+				"type": "uint256"
+			}
+		],
+		"name": "resumeDCA",
+		"outputs": [
+			{
+				"internalType": "enum DCAManager.Status",
+				"name": "status",
+				"type": "uint8"
 			}
 		],
 		"stateMutability": "nonpayable",
