@@ -73,15 +73,15 @@ async function getValidDCAItems(web3, numItems, contract, from){
 }
 
 
-async function performDCA(contract, dcaItem, from){
+async function performDCA(contract, dcaItem, from, minOut, swapData){
     let id = dcaItem.itemID;
     let owner = dcaItem.owner;
     console.log(dcaItem)
     console.log(`performDCA ${id} ${owner}`)
-    let gas = await contract.methods.performDCAFake(id, owner).estimateGas({from:from});
+    let gas = await contract.methods.performDCA(id, owner, minOut, swapData).estimateGas({from:from});
     console.log(gas)
     
-    await contract.methods.performDCAFake(id, owner).send({from:from, gas: gas});
+    // await contract.methods.performDCA(id, owner, minOut, swapData).send({from:from, gas: gas});
 }
 
 
@@ -113,8 +113,17 @@ async function main(){
         if(!validItems) txs = false;
 
         for(i in validItems){
-            // console.log(validItems[i]);
-            // performDCA(contract, validItems[i], from);
+            const item = validItems[i];
+            console.log(validItems[i]);
+            const data = await getExpectedReturn(
+                    item.assetIn,
+                    item.assetOut,
+                    item.amountIn,
+                    item.dcaOwner
+            )
+            let minOut = data.toTokenAmount;
+            const swapData = data.tx.data;
+            performDCA(contract, item, from, minOut, swapData);
         }
 
     }catch(e){
