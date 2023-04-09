@@ -33,8 +33,13 @@ async function getTotalDCAItems(contract, from){
 async function getTokenBalance(web3, from, tokenAddress, holderAddress){
     const erc20ABI = [{"inputs":[{"internalType":"string","name":"name_","type":"string"},{"internalType":"string","name":"symbol_","type":"string"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"spender","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"spender","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"subtractedValue","type":"uint256"}],"name":"decreaseAllowance","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"addedValue","type":"uint256"}],"name":"increaseAllowance","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transfer","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transferFrom","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"}]
     const contract = new web3.eth.Contract(erc20ABI, tokenAddress, { from });
-    const balance = await contract.methods.balanceOf(holderAddress).call({from: from});
-    return balance
+    try{
+        const balance = await contract.methods.balanceOf(holderAddress).call({from: from});
+        return balance;
+    }catch(e){
+        console.error(e.error);
+        return 0;
+    }
 }
 
 async function getValidDCAItems(web3, numItems, contract, from){
@@ -50,12 +55,7 @@ async function getValidDCAItems(web3, numItems, contract, from){
         let currentTimeSeconds = Math.floor(Date.now()/1000);
         let nextValidRunTime = Number(frequency)+Number(lastDcaTimestamp);
         let amountRemaining = dcaItem.amountIn - dcaItem.totalDcaed;
-        console.log(dcaItem.amount)
-        console.log(dcaItem.totalDcaed)
-        console.log('hi')
-        console.log(currentTimeSeconds>=nextValidRunTime, dcaItem.status, tokenBalance >= amountRemaining)
-        console.log(tokenBalance)
-        console.log(amountRemaining)
+        
         dcaItem.itemID = i;
         //the the item is ready to be DCAed, the status is in progress (0) & the user has enough balance to dca item
         if(
@@ -88,6 +88,7 @@ exports.handler = async function(event) {
     let txs = []
     const numDcaItems = await getTotalDCAItems(contract, from);
     let validItems = await getValidDCAItems(web3, numDcaItems, contract, from);
+
     for(i in validItems){
         let id = validItems[i].itemID;
         let owner = validItems[i].owner;
@@ -111,6 +112,5 @@ exports.handler = async function(event) {
     // }
 
   
-
     return txs;
 }
