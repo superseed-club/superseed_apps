@@ -142,9 +142,6 @@ describe("DCAManager", function () {
         await token.mint(owner.address, mintAmount);
         await expect( dcaManager.performDCA(0,0,'0x')).to.be.revertedWith("The DCA Item is not in progress it was either paused or there is not enough balance");
     });
-
-
-    
     
     
     
