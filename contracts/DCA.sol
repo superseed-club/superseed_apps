@@ -200,7 +200,7 @@ contract DCAManager is Ownable{
         uint amountRemainingToDCA = dcaItem.amountIn-dcaItem.totalDcaed;
         uint tokenBalance = ERC20(dcaItem.assetIn).balanceOf(dcaItem.dcaOwner);
         if(tokenBalance<amountRemainingToDCA){
-            dcaItem.status = Status.NOT_ENOUGH_BALANCE;
+            dcaItem.status = Status.NOT_ENOUGH_BALANCE; //this code may not occur because of the reversion, hopefully this not enough balance happens someone else
             dcaItems[itemID] = dcaItem;
         }
         require(tokenBalance>=amountRemainingToDCA, "Not enough balance to DCA");
@@ -289,13 +289,6 @@ contract DCAManager is Ownable{
         return (dcaItems[itemID].status==Status.IN_PROGRESS);
     }
 
-
-function dcaItemInProgress2(uint itemID)
-    public
-    view
-    returns (bool IN_PROGRESS){
-        return uint(dcaItems[itemID].status)==uint(Status.IN_PROGRESS);
-    }
 
     
 

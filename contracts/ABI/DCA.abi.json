@@ -122,25 +122,6 @@
 		"inputs": [
 			{
 				"internalType": "uint256",
-				"name": "itemID",
-				"type": "uint256"
-			}
-		],
-		"name": "dcaItemInProgress2",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "IN_PROGRESS",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
 				"name": "minOut",
 				"type": "uint256"
 			},
