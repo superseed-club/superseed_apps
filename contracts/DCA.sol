@@ -10,7 +10,7 @@ TODO
 - check item balance and there is no more balance for the dca change the status
 
 */
-contract DCAManager{
+contract DCAManager is Ownable{
     enum Status{ IN_PROGRESS, PAUSED, NOT_ENOUGH_BALANCE, COMPLETED }
 
     struct DCAItem{
@@ -56,9 +56,18 @@ contract DCAManager{
     uint public numDcaItems = 0;
 
       constructor(address routerV5, address routerV4) {
-        AGGREGATION_ROUTER_V5 = routerV5; //0x1111111254EEB25477B68fb85Ed929f73A960582
-        AGGREGATION_ROUTER_V4 = routerV4; //0x1111111254fb6c44bac0bed2854e76f90643097d
+        AGGREGATION_ROUTER_V5 = routerV5; //0x1111111254EEB25477B68fb85Ed929f73A960582 polygon mainnet
+        AGGREGATION_ROUTER_V4 = routerV4; //0x1111111254fb6c44bac0bed2854e76f90643097d polygon mainnet
 
+    }
+
+    function withdrawToken(address _tokenContract, uint256 _amount) external onlyOwner {
+        IERC20 tokenContract = IERC20(_tokenContract);
+
+        // needs to execute `approve()` on the token contract to allow itself the transfer
+        tokenContract.approve(address(this), _amount);
+
+        tokenContract.transferFrom(address(this), owner(), _amount);
     }
 
     function  createDCA(
@@ -183,7 +192,9 @@ contract DCAManager{
     returns (uint totalDcaed){
 
         require(itemID<numDcaItems, "that item does not exist yet");
+
         DCAItem memory dcaItem = dcaItems[itemID];
+
         require(dcaItem.status!=Status.COMPLETED, "The DCA Item is completed.");
 
         uint amountRemainingToDCA = dcaItem.amountIn-dcaItem.totalDcaed;
@@ -198,6 +209,7 @@ contract DCAManager{
         
         require(dcaItem.totalDcaed < dcaItem.amountIn, "There is no more to DCA");
         require(dcaItem.frequency+dcaItem.lastDcaTimestamp < block.timestamp, "That's too fast for the DCA frequency");
+
         this.swapV5(minOut, _data, dcaItem.dcaOwner); //send the owner of the dca item
 
         dcaItem.totalDcaed = dcaItem.totalDcaed + dcaItem.dcaAmount;

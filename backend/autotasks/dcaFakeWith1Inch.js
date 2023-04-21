@@ -83,8 +83,6 @@ exports.handler = async function(event) {
   const contract = new web3.eth.Contract(ABI, ADDRESS, { from });
 
 
-//   const swapData = await getExpectedReturn(token1, token2, amount, from);
-//   console.log(swapData)
     let txs = []
     const numDcaItems = await getTotalDCAItems(contract, from);
     let validItems = await getValidDCAItems(web3, numDcaItems, contract, from);
@@ -95,21 +93,6 @@ exports.handler = async function(event) {
         let tx = await contract.methods.performDCAFake(id, owner).send();
         txs.push(tx);
     }
-    // try{
-    //     const numDcaItems = await getTotalDCAItems(contract, from);
-    //     let validItems = await getValidDCAItems(web3, numDcaItems, contract, from);
-    //     for(i in validItems){
-    //         let id = validItems[i].itemID;
-    //         let owner = validItems[i].owner;
-    //         let tx = await contract.methods.performDCAFake(id, owner).send();
-    //         txs.push(tx);
-    //     }
-
-    // }catch(e){
-    //     console.log('method did not execute successfully')
-    //     console.log(e)
-    //     return e
-    // }
 
   
     return txs;
